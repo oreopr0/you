@@ -1,0 +1,22 @@
+{
+  "logo":"https://telegra.ph/file/5116db79f852db113875c.jpg",
+  "name": "YT-Downloader",
+  "description": "- بوت تحميل من يوتيوب .",
+  "env": {
+    "TOKEN": {
+      "description": "Enter bot token Get It From @botfather.",
+      "value": ""
+    },
+    "APP_ID": {
+      "description": "Get this value from my.telegram.org! Please do not steal.",
+      "value": "25281175"
+    },
+    "API_HASH": {
+      "description": "Get this value from my.telegram.org! Please do not steal.",
+      "value": "6d99cb2b60a2c519fc1f99bd19565730"
+    }
+  },
+  "buildpacks": [{
+    "url": "https://github.com/heroku/heroku-buildpack-python.git"
+  }]
+}
