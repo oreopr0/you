@@ -99,8 +99,5 @@ def download_project(project, chat_id):
 """, parse_mode="markdown", reply_markup=A)
 
 private = "\033[2;32m Running... /start"
-for char in private:
-    sleep(0.2)
-    print(char, end='', flush=True)
-
+print(private)
 bot.polling(none_stop=True)
