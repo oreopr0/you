@@ -1,4 +1,4 @@
-datetime
+datetime==5.4
 requests
 telebot
 time
