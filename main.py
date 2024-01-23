@@ -1,170 +1,112 @@
-from pyrogram import Client, filters as ay
-from yt_dlp import YoutubeDL
-from requests import get
-from youtube_search import YoutubeSearch
-import os, wget
-from pyrogram.types import (
-   InlineKeyboardMarkup,
-   InlineKeyboardButton,
-   InlineQuery,
-   InlineQueryResultArticle,
-   InputTextMessageContent,
-)
+import telebot
+import requests
+from telebot import types
+from time import sleep
+from datetime import datetime
+import os
 
-api_id = int(os.environ.get("APP_ID"))
-api_hash = os.environ.get("API_HASH")
-token = os.environ.get("TOKEN")
+logo = '''
+___
+_   \   \_  _/_ |  / /    |  /  __/
+  /_/ /_  /_/ /  /  | / /  /| |_  /    /
+_  /_  _, _// /   |/ / _  _ |  /   _  /_
+/_/     /_/ |_| /_/  _/  /_/  |_/_/    /___/
 
-app = Client("yt", bot_token=token, api_id = api_id, api_hash = api_hash)
+---------------------------------
+'''
 
-Sudo_id = '6581896306'
-@app.on_message(ay.command("start"))
-async def start(client, message):
-   await message.reply_text(
-      "👋┇أهلاً بك عزيزي،\nمع البوت يمكنك\nتحميل من اليوتيوب بصيغ\nمتعددة والاستماع اليها في أي وقت\nمع ميزه البحث فقط اكتب بحث +\nالكلمه",
-      reply_markup=InlineKeyboardMarkup(
-         [
-            [
-               InlineKeyboardButton("DEVELOBER", url=f"https://t.me/elhyba"),
-               ],[
-               InlineKeyboardButton("🔱 𝐒𝐎𝐔𝐑𝐂𝐄 𝐙𝐄 🔱", url=f"https://t.me/Source_Ze"),
-            ]
-         ]
-      )
-   )
-   await client.send_message(chat_id=Sudo_id,text=f"العضو : {message.from_user.mention()}\nضغط start في بوتك\nالايدي : `{message.from_user.id}`")
+print(logo)
 
-@app.on_message(ay.regex(r"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$"))
-async def ytdl(client, message):
-   await message.reply_text(
-      f"🎬  : {message.text}",disable_web_page_preview=True,
-      reply_markup=InlineKeyboardMarkup(
-         [
-            [
-               InlineKeyboardButton("🎧 مقطع صوتي .", callback_data="audio"),
-               InlineKeyboardButton("🎬 مقطع فيديو .", callback_data="video"),
-            ]
-         ]
-      )
-   )
+token = "6149645127:AAH6yTfAvHk6b3LAoKSENEXZgev4l5xBUVI"
+Developer = "j_S_9"
+bot = telebot.TeleBot(token)
+is_bot_active = True
 
-@app.on_callback_query(ay.regex("video"))
-async def VideoDownLoad(client, callback_query):
-   await callback_query.edit_message_text("*🎚 ┇ يتم قياس حجم التحميل*")
-   try:
-      url = callback_query.message.text.split(' : ',1)[1]
-      with YoutubeDL(video) as ytdl:
-         await callback_query.edit_message_text("*♻️┇جاري التحميل...*")
-         ytdl_data = ytdl.extract_info(url, download=True)
-         video_file = ytdl.prepare_filename(ytdl_data)
-   except Exception as e:
-      await client.send_message(chat_id=Sudo_id,text=e)
-      return await callback_query.edit_message_text(e)
-   await callback_query.edit_message_text("*🚀 يتم الرفع علي خوادم تلكرام *")
-   await client.send_video(
-            callback_query.message.chat.id,
-            video=video_file,
-            duration=int(ytdl_data["duration"]),
-            file_name=str(ytdl_data["title"]),
-            supports_streaming=True,
-            caption=f"[{ytdl_data['title']}]({url})"
-        )
-   await callback_query.edit_message_text("Done Send Video 🚧")
-   os.remove(video_file)
+A = types.InlineKeyboardMarkup(row_width=2)
+Ch = types.InlineKeyboardButton(text="𝘾𝙃𝘼𝙉𝙉𝙀𝙇", url="t.me/SpidrX")
+Dev = types.InlineKeyboardButton(text="𝘿𝙀𝙑𝙀𝙇𝙊𝙋𝙀𝙍", url="t.me/hack_onlaain")
+A.add(Ch, Dev)
 
-@app.on_callback_query(ay.regex("audio"))
-async def AudioDownLoad(client, callback_query):
-   await callback_query.edit_message_text("*🎚 ┇ يتم قياس حجم التحميل*")
-   try:
-      url = callback_query.message.text.split(' : ',1)[1]
-      with YoutubeDL(audio) as ytdl:
-         await callback_query.edit_message_text("*♻️┇جاري التحميل...*")
-         ytdl_data = ytdl.extract_info(url, download=True)
-         audio_file = ytdl.prepare_filename(ytdl_data)
-         thumb = wget.download(f"https://img.youtube.com/vi/{ytdl_data['id']}/hqdefault.jpg")
-   except Exception as e:
-      await client.send_message(chat_id=Sudo_id,text=e)
-      return await callback_query.edit_message_text(e)
-   await callback_query.edit_message_text("*🚀 يتم الرفع علي خوادم تلكرام *")
-   await client.send_audio(
-      callback_query.message.chat.id,
-      audio=audio_file,
-      duration=int(ytdl_data["duration"]),
-      title=str(ytdl_data["title"]),
-      performer=str(ytdl_data["uploader"]),
-      file_name=str(ytdl_data["title"]),
-      thumb=thumb,
-      caption=f"[{ytdl_data['title']}]({url})"
-   )
-   await callback_query.edit_message_text("Done Send Video 🚧")
-   os.remove(audio_file)
-   os.remove(thumb)
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.send_photo(message.chat.id, "https://t.me/SpidrX", caption="""
+↯︙ 👋 مرحباً بك عزيزي في بوت GitHub X Bet لسحب المستودعات العامة الموجودة في موقع github.com ارسل اسم المستودع للبحث عن جميع الأدوات على سبيل المثال Hulk 🔰
+""", parse_mode="markdown", reply_markup=A)
 
-
-@app.on_message(ay.command("بحث",None))
-async def search(client, message):
+@bot.message_handler(func=lambda message: True)
+def search(message):
+    query = message.text
     try:
-        query = message.text.split(None, 1)[1]
-        if not query:
-            await message.reply_text("استخدم الامر هكذا ( بحث + الكلمه )")
-            return
-
-        m = await message.reply_text("يتم البحث انتضر قليلا ...")
-        results = YoutubeSearch(query, max_results=5).to_dict()
-        i = 0
-        text = ""
-        while i < 5:
-            text += f"👤 {results[i]['title']}\n"
-            text += f"🕑 {results[i]['duration']}\n"
-            text += f"👁 {results[i]['views']}\n"
-            text += f"🌐 {results[i]['channel']}\n"
-            text += f"🔗 https://www.youtube.com{results[i]['url_suffix']}\n\n"
-            i += 1
-        await m.edit(text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔱 𝐒𝐎𝐔𝐑𝐂𝐄 𝐙𝐄 🔱", url="https://t.me/Source_Ze")]]), disable_web_page_preview=True)
+        projects = search_projects(query)
+        if projects:
+            for project in projects:
+                download_project(project, message.chat.id)
+        else:
+            bot.send_photo(message.chat.id, "https://t.me/SpidrX", caption="""
+↯︙ ♻️ عذراً عزيزي لم يتم البحث بنجاح عن المستودع يرجى التحقق من الاسم أو رابط الإحالة ❌
+""", parse_mode="markdown", reply_markup=A)
     except Exception as e:
-        await m.edit(str(e))
+        print(f"Error: {str(e)}")
+        bot.send_photo(message.chat.id, "https://t.me/SpidrX", caption="""
+↯︙ حدثت مشكلة أثناء تنفيذ البحث. يرجى المحاولة مرة أخرى في وقت لاحق. ❌
+""", parse_mode="markdown", reply_markup=A)
 
-@app.on_inline_query()
-async def inline(client, query: InlineQuery):
-    answers = []
-    search_query = query.query.lower().strip().rstrip()
+def search_projects(query):
+    try:
+        url = f"https://api.github.com/search/repositories?q={query}%20in:name"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        projects = data.get('items', [])
+        return projects
+    except Exception as e:
+        print(f"Error in search_projects: {str(e)}")
+        return []
 
-    if search_query == "":
-        await client.answer_inline_query(
-            query.id,
-            results=answers,
-            switch_pm_text="type a youtube video name...",
-            switch_pm_parameter="help",
-            cache_time=0,
-        )
-    else:
-        results = YoutubeSearch(search_query).to_dict()
-        for result in results:
-         answers.append(
-               InlineQueryResultArticle(
-                  title=result["title"],
-                  description="{}, {} views.".format(
-                     result["duration"], result["views"]
-                  ),
-                  input_message_content=InputTextMessageContent(
-                     "🔗 https://www.youtube.com/watch?v={}".format(result["id"])
-                  ),
-                  thumb_url=result["thumbnails"][0],
-               )
-         )
-        
-        try:
-            await query.answer(results=answers, cache_time=0)
-        except errors.QueryIdInvalid:
-            await query.answer(
-                results=answers,
-                cache_time=0,
-                switch_pm_text="Error: search timed out",
-                switch_pm_parameter="",
-            )
-            
-video = {"format": "best","keepvideo": True,"prefer_ffmpeg": False,"geo_bypass": True,"outtmpl": "%(title)s.%(ext)s","quite": True}
-audio = {"format": "bestaudio","keepvideo": False,"prefer_ffmpeg": False,"geo_bypass": True,"outtmpl": "%(title)s.mp3","quite": True}
+def download_project(project, chat_id):
+    try:
+        Name = project.get('name')
+        URL = project.get('html_url')
+        Devs = project.get('owner', {}).get('login')
+        ziplink = f"https://github.com/{Devs}/{Name}/archive/master.zip"
+        response = requests.get(ziplink)
+        response.raise_for_status()
+        with open(f"{Name}.zip", 'wb') as file:
+            file.write(response.content)
 
-print("تم تشغيل البوت بواسطة مودي الهيبه @ELHYBA")
-app.run()
+        # حصول على تاريخ آخر تعديل
+        last_modified = datetime.fromtimestamp(os.path.getmtime(f"{Name}.zip"))
+
+        # حصول على معلومات إضافية
+        repo_info_url = f"https://api.github.com/repos/{Devs}/{Name}"
+        repo_info_response = requests.get(repo_info_url)
+        repo_info_response.raise_for_status()
+        repo_info = repo_info_response.json()
+
+        # الحصول على المعلومات
+        stars = repo_info.get('stargazers_count', 0)
+        forks = repo_info.get('forks_count', 0)
+        watchers = repo_info.get('watchers_count', 0)
+
+        bot.send_document(chat_id, open(f"{Name}.zip", 'rb'))
+        bot.send_message(chat_id, f"اسم المشروع: {Name}\n"
+                                  f"رابط المشروع: {URL}\n"
+                                  f"اسم المستخدم: {Devs}\n"
+                                  f"عدد النجوم: {stars}\n"
+                                  f"عدد الفوركس: {forks}\n"
+                                  f"عدد المراقبين: {watchers}\n"
+                                  f"المشروع مفتوح المصدر\n"
+                                  f"تاريخ آخر تعديل: {last_modified}\n"
+                                  f"تاريخ النشر: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    except Exception as e:
+        print(f"Error in download_project: {str(e)}")
+        bot.send_photo(chat_id, "https://t.me/SpidrX", caption=f"""
+↯︙ حدثت مشكلة أثناء تحميل المستودع {Name}. يوجد تلف يرجى مراسلة :- {Developer}
+""", parse_mode="markdown", reply_markup=A)
+
+private = "\033[2;32m Running... /start"
+for char in private:
+    sleep(0.2)
+    print(char, end='', flush=True)
+
+bot.polling(none_stop=True)
