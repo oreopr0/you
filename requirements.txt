@@ -1,6 +1,4 @@
-pyrogram
-tgcrypto
-yt-dlp
+detatime
 requests
-youtube_search
-wget
+telebot
+time
